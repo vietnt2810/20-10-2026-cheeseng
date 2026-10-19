@@ -398,7 +398,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
     <h2>Rương này chứa 1 trong các phần quà sau</h2>
     <ul class="items" id="itemsList"></ul>
     <p class="rules">Luật ×2: nếu mở ra mệnh giá dưới 1.000.000₫, em được quyền thử nhân đôi một lần, tỉ lệ <b>50/50</b>. Thắng thì nhận gấp đôi. Thua thì về <b>111.000₫</b>. Mở trúng ô vàng thì nhận luôn, không cần cược.</p>
-    <p class="peektip">Chạm vào chỗ trống bất kỳ để làm mờ giao diện và ngắm ảnh nền. Chạm lần nữa để quay lại.</p>
+    <p class="peektip">Chạm vào vùng nền trống phía sau các khung để làm mờ giao diện và ngắm ảnh nền. Chạm lần nữa để quay lại.</p>
   </section>
 
   <button class="replay" id="replayBtn" type="button" hidden>Mở lại từ đầu</button>
@@ -426,7 +426,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
   const BG_FILES     = ['nen-1.jpg','nen-2.jpg']; // ảnh nền đặt cạnh file HTML, thêm bớt tên file tại đây
   const BG_INTERVAL  = 7000;   // mỗi ảnh hiện bao lâu (ms)
 
-  const TIER = { blue:'Trà sữa', purple:'Sờ pa gét ti', red:'Son', gold:'★ Anh -1m' };
+  const TIER = { blue:'Trà sữa', purple:'Sờ pa gét ti', red:'Son', gold:'★ Anh ng iu -1m' };
   const NAME = { 111000:'Koi thé', 222000:'Sờ pa gét ti', 333000:'Làm thỏi son hoyy', 1000000:'Anh ng iu -1m' };
   const RC   = { blue:'var(--r-blue)', purple:'var(--r-purple)', red:'var(--r-red)', gold:'var(--r-gold)' };
 
@@ -824,9 +824,12 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
   /* ===== Ngắm ảnh nền: chạm vào chỗ không phải nút thì làm mờ giao diện ===== */
   let peeking = false, x2Running = false;
   function setPeek(on){ peeking = on; document.body.classList.toggle('peek', on); }
+  const wrapEl = document.querySelector('.wrap');
   document.addEventListener('click', e => {
     if(peeking){ setPeek(false); return; }
-    if(e.target.closest('button, input, label, a, select, textarea')) return;
+    // Chỉ nhận khi chạm đúng vùng nền trống: ngoài mọi khung, chữ và nút
+    const onBackdrop = e.target === document.documentElement || e.target === document.body || e.target === wrapEl;
+    if(!onBackdrop) return;
     if(stage.dataset.state === 'spinning' || x2Running) return;
     setPeek(true);
   });
