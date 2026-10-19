@@ -344,7 +344,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
 <div class="bgslides" id="bgslides" aria-hidden="true"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div class="peekhint" aria-hidden="true">Chạm để quay lại</div>
-<audio id="bgm" src="nhac-nen.webm" loop preload="auto"></audio>
+<audio id="bgm" src="nhac-nen.mp3" loop preload="auto" playsinline></audio>
 
 <main class="wrap">
   <header class="top">
@@ -452,7 +452,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
     </div>`;
   }
 
-  /* ===== Nhạc nền: file nhac-nen.webm đặt cạnh file HTML, tự phát sau BGM_DELAY ===== */
+  /* ===== Nhạc nền: file nhac-nen.mp3 đặt cạnh file HTML, tự phát sau BGM_DELAY ===== */
   const bgm = document.getElementById('bgm');
   const bgmNote = document.getElementById('bgmNote');
   let bgmReady = false, bgmWanted = true, bgmFade = null;
@@ -468,7 +468,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
   });
   bgm.addEventListener('error', () => {
     if(!bgmReady){
-      bgmNote.textContent = 'Chưa phát được nhạc nền. Đặt file "nhac-nen.webm" cùng thư mục với file này.';
+      bgmNote.textContent = 'Chưa phát được nhạc nền. Đặt file "nhac-nen.mp3" cùng thư mục với file này.';
       bgmNote.hidden = false;
     }
   });
@@ -489,13 +489,12 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
     }, 40);
   }
   // Dự phòng khi trình duyệt chặn tự phát: lần chạm đầu tiên vào trang sẽ bật nhạc nền.
+  // iPhone/Safari chỉ cho phát khi gọi trong touchend/click, không nhận touchstart
   function firstTouch(){
-    document.removeEventListener('pointerdown', firstTouch);
-    document.removeEventListener('keydown', firstTouch);
+    ['touchend','click','keydown'].forEach(ev => document.removeEventListener(ev, firstTouch));
     if(stage.dataset.state === 'idle' && bgm.paused) bgmPlay();
   }
-  document.addEventListener('pointerdown', firstTouch);
-  document.addEventListener('keydown', firstTouch);
+  ['touchend','click','keydown'].forEach(ev => document.addEventListener(ev, firstTouch));
 
   /* ===== Hiệu ứng âm thanh (tổng hợp bằng Web Audio, không dùng file) ===== */
   let actx = null, master = null, soundOn = true;

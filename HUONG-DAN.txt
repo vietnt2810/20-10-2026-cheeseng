@@ -1,4 +1,4 @@
-1. Tai nhac xo so mien Bac (mp3), doi ten thanh:  nhac-nen.webm
+1. Tai nhac xo so mien Bac (mp3), doi ten thanh:  nhac-nen.mp3
 2. Dat file do vao cung thu muc nay (canh ruong-qua-2010.html)
 3. Mo ruong-qua-2010.html bang Chrome/Edge. Cham vao trang 1 lan la nhac nen tu chay.
    Bam 'Mo ruong' thi nhac nen tat, quay xong va chot ket qua thi nhac quay lai.
@@ -10,4 +10,4 @@ ANH NEN: dat anh ten  nen-1.jpg, nen-2.jpg  (them anh thi them ten vao dong BG_F
 Anh se tu chay slideshow phia sau, moi anh 7 giay. Thieu anh nao thi bo qua anh do.
 
 AM LUONG nhac nen: dong  const BGM_VOLUME = 0.36;  trong file html (0 den 1).
-Luu y: file .webm khong chay tren iPhone/Safari. Neu can, doi sang .mp3 va sua ten trong the <audio>.
+Nhac da la MP3 nen chay duoc tren iPhone.
