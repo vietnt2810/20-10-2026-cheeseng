@@ -420,7 +420,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
   const SPIN_MS      = 6400;   // thời gian quay
   const WIN_INDEX    = 52;     // vị trí ô trúng trong dải
   const REEL_LEN     = 60;
-  const BGM_VOLUME   = 0.36;   // âm lượng nhạc nền (0 đến 1)
+  const BGM_VOLUME   = 1.0;    // iPhone không cho chỉnh âm lượng bằng code, nên độ to đã hạ sẵn 36% trong file mp3
   const BGM_DELAY    = 2000;   // nhạc nền tự phát sau bao lâu kể từ khi vào trang (ms)
   const BG_FILES     = ['nen-1.jpg','nen-2.jpg']; // ảnh nền đặt cạnh file HTML, thêm bớt tên file tại đây
   const BG_INTERVAL  = 7000;   // mỗi ảnh hiện bao lâu (ms)
@@ -473,19 +473,25 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
     }
   });
 
+  // Không chờ "sẵn sàng": iPhone chỉ tải file khi có lệnh phát trong lúc người dùng chạm
   function bgmPlay(){
-    if(!bgmReady || !bgmWanted) return;
+    if(!bgmWanted) return;
     if(bgmFade){ clearInterval(bgmFade); bgmFade = null; }
-    bgm.volume = BGM_VOLUME;
-    bgm.play().catch(() => {});
+    try { bgm.volume = BGM_VOLUME; } catch(e){}
+    bgm.play().then(() => { bgmReady = true; bgmNote.hidden = true; }).catch(() => {});
   }
   function bgmStop(fade){
     if(bgmFade){ clearInterval(bgmFade); bgmFade = null; }
     if(bgm.paused) return;
     if(!fade){ bgm.pause(); return; }
+    const started = performance.now();
     bgmFade = setInterval(() => {
-      bgm.volume = Math.max(0, bgm.volume - 0.08);
-      if(bgm.volume <= 0.01){ clearInterval(bgmFade); bgmFade = null; bgm.pause(); bgm.volume = BGM_VOLUME; }
+      try { bgm.volume = Math.max(0, bgm.volume - 0.08); } catch(e){}
+      // iPhone bỏ qua volume nên luôn dừng hẳn sau tối đa nửa giây
+      if(bgm.volume <= 0.01 || performance.now() - started > 500){
+        clearInterval(bgmFade); bgmFade = null; bgm.pause();
+        try { bgm.volume = BGM_VOLUME; } catch(e){}
+      }
     }, 40);
   }
   // Dự phòng khi trình duyệt chặn tự phát: lần chạm đầu tiên vào trang sẽ bật nhạc nền.
