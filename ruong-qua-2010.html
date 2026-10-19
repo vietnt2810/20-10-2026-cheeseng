@@ -270,6 +270,21 @@ button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 .replay{align-self:center; background:none; border:none; color:var(--muted); font:inherit; font-size:12px; text-decoration:underline; cursor:pointer; padding:4px}
 .replay:hover{color:var(--fg)}
 
+/* ---- Chế độ ngắm ảnh nền: chạm vào nền thì giao diện mờ đi ---- */
+.wrap{transition:filter .55s ease, opacity .55s ease}
+.bgslides::after{transition:opacity .55s ease}
+body.peek .wrap{filter:blur(18px); opacity:.12; pointer-events:none}
+body.peek .bgslides::after{opacity:.18}
+body.peek #confetti{display:none}
+.peekhint{
+  position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%);
+  z-index:60; font-size:12px; letter-spacing:.04em; color:var(--fg);
+  background:rgba(13,17,23,.55); border:1px solid rgba(255,255,255,.12); padding:7px 14px; border-radius:999px;
+  opacity:0; pointer-events:none; transition:opacity .4s; white-space:nowrap;
+}
+body.peek .peekhint{opacity:1}
+.peektip{color:var(--muted); font-size:12px; margin:0}
+
 /* ---- Mobile ---- */
 button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent}
 .stage,.bigcard{user-select:none; -webkit-user-select:none}
@@ -315,6 +330,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
   .casebox{animation:none}
   .love,.love .kiss,.hearts span{animation:none}
   .bgslides .slide.show{animation:none}
+  .wrap,.bgslides::after,.peekhint{transition:none}
   .love{color:var(--pink); background:none}
   .hearts{display:none}
   .result{animation:none}
@@ -327,6 +343,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
 
 <div class="bgslides" id="bgslides" aria-hidden="true"></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
+<div class="peekhint" aria-hidden="true">Chạm để quay lại</div>
 <audio id="bgm" src="nhac-nen.webm" loop preload="auto"></audio>
 
 <main class="wrap">
@@ -382,6 +399,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
     <h2>Rương này chứa 1 trong các phần quà sau</h2>
     <ul class="items" id="itemsList"></ul>
     <p class="rules">Luật ×2: nếu mở ra mệnh giá dưới 1.000.000₫, em được quyền thử nhân đôi một lần, tỉ lệ <b>50/50</b>. Thắng thì nhận gấp đôi. Thua thì về <b>111.000₫</b>. Mở trúng ô vàng thì nhận luôn, không cần cược.</p>
+    <p class="peektip">Chạm vào chỗ trống bất kỳ để làm mờ giao diện và ngắm ảnh nền. Chạm lần nữa để quay lại.</p>
   </section>
 
   <button class="replay" id="replayBtn" type="button" hidden>Mở lại từ đầu</button>
@@ -702,6 +720,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
 
   x2Btn.addEventListener('click', () => {
     x2Btn.disabled = true; keepBtn.disabled = true;
+    x2Running = true;
     ac();
     const win = FORCE_X2 !== null ? !!FORCE_X2 : Math.random() < X2_CHANCE;
     const doubled = {v: prize.v*2, r: prize.r};
@@ -733,6 +752,7 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
   });
 
   function settle(p, x2){
+    x2Running = false;
     resActions.hidden = false;
     keepBtn.disabled = true;
     x2Btn.disabled = true;
@@ -801,6 +821,17 @@ button,.ghost{touch-action:manipulation; -webkit-tap-highlight-color:transparent
     });
   }
   setBackgrounds(BG_FILES);
+
+  /* ===== Ngắm ảnh nền: chạm vào chỗ không phải nút thì làm mờ giao diện ===== */
+  let peeking = false, x2Running = false;
+  function setPeek(on){ peeking = on; document.body.classList.toggle('peek', on); }
+  document.addEventListener('click', e => {
+    if(peeking){ setPeek(false); return; }
+    if(e.target.closest('button, input, label, a, select, textarea')) return;
+    if(stage.dataset.state === 'spinning' || x2Running) return;
+    setPeek(true);
+  });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape' && peeking) setPeek(false); });
 
   /* ===== Pháo giấy ===== */
   const cv = $('confetti'), cx = cv.getContext('2d');
